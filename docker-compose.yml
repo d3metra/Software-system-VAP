@@ -1,0 +1,55 @@
+services:
+  api:
+    build: .
+    command:
+    restart: always
+    environment: 
+      TZ: "${TIMEZONE}"
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}"
+    volumes: 
+      - ./app:/app
+    ports: 
+      - "${API_PORT}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      TZ: "${TIMEZONE}"
+      POSTGRES_DB: "${DB_NAME}"
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      PGOPTIONS: "-c tcp_keepalives_idle=259200"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports: 
+      - "${PG_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 20s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:6.13
+    restart: always
+    environment:
+      TZ: "${TIMEZONE}"
+      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_LOGIN}"
+      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_PASS}"
+      PGADMIN_DISABLE_POSTFIX: 1
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${PGADMIN_PORT}:80"
+
+volumes: 
+  pgdata:
+  pgadmin:
