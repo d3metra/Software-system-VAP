@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from app import routers, errors
 
-app = FastAPI(title="ares")
+app = FastAPI(title="Mizar")
 
 @app.exception_handler(errors.HTTPException)
 async def http_execpion_handler(request: Request, exc: errors.HTTPException) -> Response:
