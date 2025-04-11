@@ -57,4 +57,4 @@ def add_patent(
     db.flush()
     db.refresh(patent)
 
-    return patents.Patent.from_model(patent)
+    return patents.Patent.from_model(patent, assignees_needed=True, inventors_needed=True)
