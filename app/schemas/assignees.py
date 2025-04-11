@@ -13,6 +13,6 @@ class Assignee(BaseModel):
         return cls(
             assignee_name=m.assignee_name,
             assignee_type=m.assignee_type,
-            county=m.country,
+            country=m.country,
             city=m.city
         )
