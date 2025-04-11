@@ -17,8 +17,8 @@ class Patent(BaseModel):
     abstract: str
     claims: str
 
-    assignees_list: List[assignees.Assignee] | None = None
-    inventors_list: List[inventors.Inventor] | None = None
+    assignees_list: List[assignees.Assignee] = []
+    inventors_list: List[inventors.Inventor] = []
 
     @classmethod
     def from_model(cls: type["Patent"], m: models.Patent, assignees_needed: bool = False, inventors_needed: bool = False):
@@ -31,6 +31,6 @@ class Patent(BaseModel):
             title=m.title,
             abstract=m.abstract,
             claims=m.claims,
-            assignees_list=[assignees.Assignee.from_model(assignee) for assignee in m.assignees] if assignees_needed else None,
-            inventors_list=[inventors.Inventor.from_model(inventor) for inventor in m.inventors] if inventors_needed else None
+            assignees_list=[assignees.Assignee.from_model(assignee) for assignee in m.assignees] if assignees_needed else [],
+            inventors_list=[inventors.Inventor.from_model(inventor) for inventor in m.inventors] if inventors_needed else []
         )

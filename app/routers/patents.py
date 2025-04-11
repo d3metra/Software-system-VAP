@@ -47,7 +47,12 @@ def add_patent(
                                           ))
     
     if patent_scheme.inventors_list is not None:
-        pass
+        for inventor in patent_scheme.inventors_list:
+            patent.inventors.append(models.Inventor(first_name=inventor.first_name,
+                                                    last_name=inventor.last_name,
+                                                    country=inventor.country,
+                                                    city=inventor.city
+                                                    ))
 
     db.flush()
     db.refresh(patent)
