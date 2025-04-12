@@ -54,6 +54,7 @@ def add_patent(
                                                     city=inventor.city
                                                     ))
 
+    
     db.flush()
     db.refresh(patent)
 

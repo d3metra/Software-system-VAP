@@ -21,7 +21,7 @@ class Patent(Base):
 
     assignees: Mapped[List["Assignee"]] = relationship("Assignee", secondary="assignees_groups", back_populates="patents")
     inventors: Mapped[List["Inventor"]] = relationship("Inventor")
-    description: Mapped[List["Description"]] = relationship("Description")
+    descriptions: Mapped[List["Description"]] = relationship("Description")
     citations: Mapped[List["PatentCitation"]] = relationship("PatentCitation")
     ipc_codes: Mapped[List["IPC"]] = relationship("IPC")
     cpc_codes: Mapped[List["CPC"]] = relationship("CPC")
