@@ -7,4 +7,6 @@ from .description import Description
 from .patent_citation import PatentCitation
 from .ipc import IPC
 from .cpc import CPC
+from .ipc_classification import IPCCLassification
+from .cpc_classification import CPCClassification
 from .patent import Patent

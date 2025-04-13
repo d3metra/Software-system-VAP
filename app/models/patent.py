@@ -23,8 +23,8 @@ class Patent(Base):
     inventors: Mapped[List["Inventor"]] = relationship("Inventor")
     descriptions: Mapped[List["Description"]] = relationship("Description")
     citations: Mapped[List["PatentCitation"]] = relationship("PatentCitation")
-    ipc_codes: Mapped[List["IPC"]] = relationship("IPC")
-    cpc_codes: Mapped[List["CPC"]] = relationship("CPC")
+    ipc_codes: Mapped[List["IPC"]] = relationship("IPC", secondary="ipc_classifications", back_populates="patents")
+    cpc_codes: Mapped[List["CPC"]] = relationship("CPC", secondary="cpc_classifications", back_populates="patents")
 
     @validates("assignees")
     def _add_assignee(self, _, assignee):
