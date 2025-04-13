@@ -24,13 +24,13 @@ def upgrade() -> None:
     op.create_table('cpc',
     sa.Column('cpc_code', sa.String(length=20), nullable=False),
     sa.Column('parent_class', sa.String(length=20), nullable=True),
-    sa.Column('title', sa.Text(), nullable=False),
+    sa.Column('title', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('cpc_code')
     )
     op.create_table('ipc',
     sa.Column('ipc_code', sa.String(length=20), nullable=False),
     sa.Column('parent_class', sa.String(length=20), nullable=True),
-    sa.Column('title', sa.Text(), nullable=False),
+    sa.Column('title', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('ipc_code')
     )
     op.create_table('descriptions',
