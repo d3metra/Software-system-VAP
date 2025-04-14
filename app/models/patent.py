@@ -35,3 +35,23 @@ class Patent(Base):
             return persistent_assignee
         else:
             return assignee
+        
+    @validates("icp_codes")
+    def _add_icp_code(self, _, ipc):
+        sess = sessionmaker.object_session(self)
+        persistent_icp_code = sess.query(IPC).filter(IPC.ipc_code == ipc.ipc_code).one_or_none()
+
+        if persistent_icp_code:
+            return persistent_icp_code
+        else:
+            return ipc
+        
+    @validates("cpc_codes")
+    def _add_cpc_code(self, _, cpc):
+        sess = sessionmaker.object_session(self)
+        persistent_cpc_code = sess.query(CPC).filter(CPC.cpc_code == cpc.cpc_code).one_or_none()
+
+        if persistent_cpc_code:
+            return persistent_cpc_code
+        else:
+            return cpc
