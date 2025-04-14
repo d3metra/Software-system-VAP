@@ -76,11 +76,17 @@ def add_patent(
 
     if patent_scheme.ipc_codes:
         for ipc in patent_scheme.ipc_codes:
-            patent.ipc_codes.append(models.IPC(ipc_code=ipc.ipc_code))
+            patent.ipc_codes.append(models.IPC(ipc_code=ipc.ipc_code,
+                                               parent_class=ipc.parent_class,
+                                               title=ipc.title
+                                               ))
 
     if patent_scheme.cpc_codes:
         for cpc in patent_scheme.cpc_codes:
-            patent.cpc_codes.append(models.CPC(cpc_code=cpc.cpc_code))
+            patent.cpc_codes.append(models.CPC(cpc_code=cpc.cpc_code,
+                                               parent_class=cpc.parent_class,
+                                               title=cpc.title
+                                               ))
 
     db.flush()
     db.refresh(patent)
