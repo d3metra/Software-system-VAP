@@ -1,7 +1,7 @@
 from typing import List
 from dataclasses import dataclass
 
-from sqlalchemy import String, Text, Index
+from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column,relationship
 
 from . import *
@@ -14,7 +14,3 @@ class IPC(Base):
     title: Mapped[str] = mapped_column(Text, nullable=True)
 
     patents: Mapped[List["Patent"]] = relationship("Patent", secondary="ipc_classifications", back_populates="ipc_codes")
-
-    __table_args__ = (
-        Index("ix_ipc_code", "ipc_code"),
-    )
