@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import ForeignKey, String, Text, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from . import *
@@ -13,3 +13,7 @@ class Description(Base):
         "patents.patent_number", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     section_name: Mapped[str] = mapped_column(String(20), nullable=False)
     section_content: Mapped[str] = mapped_column(Text, nullable=False)
+
+    __table_args__ = (
+        Index("ix_description_patent_number", "patent_number"),
+    )

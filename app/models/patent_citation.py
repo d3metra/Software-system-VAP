@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from . import *
@@ -12,3 +12,7 @@ class PatentCitation(Base):
     patent_number: Mapped[str] = mapped_column(String(55), ForeignKey(
         "patents.patent_number", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     cited_patent: Mapped[str] = mapped_column(String(55), nullable=False)
+
+    __table_args__ = (
+        Index("ix_citations_patent_number", "patent_number"),
+    )
