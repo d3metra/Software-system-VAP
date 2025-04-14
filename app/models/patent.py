@@ -36,7 +36,7 @@ class Patent(Base):
         else:
             return assignee
         
-    @validates("icp_codes")
+    @validates("ipc_codes")
     def _add_icp_code(self, _, ipc):
         sess = sessionmaker.object_session(self)
         persistent_icp_code = sess.query(IPC).filter(IPC.ipc_code == ipc.ipc_code).one_or_none()
