@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from . import *
@@ -13,3 +13,8 @@ class AssigneesGroup(Base):
         "patents.patent_number", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     assignee_id: Mapped[int] = mapped_column(ForeignKey(
         "assignees.assignee_id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    
+    __table_args__ = (
+        Index("ix_assignees_groups_patent_number", "patent_number"),
+        Index("ix_assignees_groups_assignee_is", "assignee_id")
+    )
