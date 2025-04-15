@@ -16,5 +16,5 @@ class AssigneesGroup(Base):
     
     __table_args__ = (
         Index("ix_assignees_groups_patent_number", "patent_number"),
-        Index("ix_assignees_groups_assignee_is", "assignee_id")
+        Index("ix_assignees_groups_assignee_id", "assignee_id")
     )
