@@ -44,8 +44,8 @@ def add_patent(
     patent_scheme: patents.Patent,
     db: Session = Depends(get_db),
 ) -> patents.Patent:
-    patent = models.Patent(patent_number=patent_scheme.patent_number, type=patent_scheme.type, pub_date=patent_scheme.pub_date, app_date=patent_scheme.app_date,
-                           main_cpc=patent_scheme.main_cpc, title=patent_scheme.title, abstract=patent_scheme.abstract, claims=patent_scheme.claims)
+    patent = models.Patent(patent_number=patent_scheme.patent_number, type=patent_scheme.type, pub_date=patent_scheme.pub_date, 
+                           app_date=patent_scheme.app_date, title=patent_scheme.title, abstract=patent_scheme.abstract, claims=patent_scheme.claims)
     db.add(patent)
 
     if patent_scheme.assignees_list:
@@ -76,17 +76,12 @@ def add_patent(
 
     if patent_scheme.ipc_codes:
         for ipc in patent_scheme.ipc_codes:
-            patent.ipc_codes.append(models.IPC(ipc_code=ipc.ipc_code,
-                                               parent_class=ipc.parent_class,
-                                               title=ipc.title
-                                               ))
+            patent.ipc_codes.append(models.IPC(ipc_code=ipc.ipc_code))
 
     if patent_scheme.cpc_codes:
         for cpc in patent_scheme.cpc_codes:
-            patent.cpc_codes.append(models.CPC(cpc_code=cpc.cpc_code,
-                                               parent_class=cpc.parent_class,
-                                               title=cpc.title
-                                               ))
+            patent.cpc_codes.append(models.CPC(cpc_code=cpc.cpc_code))
+    patent.main_cpc = patent_scheme.main_cpc
 
     db.flush()
     db.refresh(patent)
