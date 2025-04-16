@@ -2,9 +2,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List
 
-from sqlalchemy import String
+from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, sessionmaker, mapped_column, relationship, validates
 
+from app.errors import NotFound
 from . import *
 
 @dataclass
@@ -14,7 +15,8 @@ class Patent(Base):
     type: Mapped[str] = mapped_column(String(20), nullable=False)
     pub_date: Mapped[datetime] = mapped_column(nullable=False)
     app_date: Mapped[datetime] = mapped_column(nullable=False)
-    main_cpc: Mapped[str] = mapped_column(String(20), nullable=False)
+    main_cpc: Mapped[str] = mapped_column(String(20), ForeignKey(
+        "cpc.cpc_code", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     title: Mapped[str] = mapped_column(nullable=False)
     abstract: Mapped[str] = mapped_column(nullable=False)
     claims: Mapped[str] = mapped_column(nullable=False)
@@ -55,3 +57,11 @@ class Patent(Base):
             return persistent_cpc_code
         else:
             return cpc
+
+    @validates("main_cpc")
+    def _add_main_cpc(self, _, main_cpc):
+        sess = sessionmaker.object_session(self)
+        if not sess.query(CPC).filter(CPC.cpc_code == main_cpc).one_or_none():
+            raise NotFound(f"CPC Code {main_cpc} not found")
+        
+        return main_cpc
