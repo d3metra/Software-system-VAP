@@ -4,10 +4,12 @@ from pydantic import BaseModel
 
 from app import models
 
-class CPC(BaseModel):
-    cpc_code: str
+class CPCMeta(BaseModel):
     parent_class: Optional[str]
     title: Optional[str]
+
+class CPC(CPCMeta):
+    cpc_code: str
 
     @classmethod
     def from_model(cls: type["CPC"], m: models.CPC):
