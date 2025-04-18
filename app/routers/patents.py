@@ -22,7 +22,7 @@ def get_patent(
     citations_needed: bool = False,
     ipc_needed: bool = False,
     cpc_needed: bool = False
-) -> patents.Patent:
+) -> patents.PatentResponse:
     patent_db = db.scalars(
         select(models.Patent).
         where(models.Patent.patent_number == patent_number)
@@ -30,7 +30,7 @@ def get_patent(
     
     if patent_db is None:
         raise NotFound(f"Patent {patent_number} not found.")
-    return patents.Patent.from_model(patent_db, 
+    return patents.PatentResponse.from_model(patent_db, 
                                      assignees_needed=assignees_needed, 
                                      inventors_needed=inventors_needed,
                                      descriptions_needed=description_needed,
@@ -43,7 +43,7 @@ def add_patent(
     *,
     patent_scheme: patents.Patent,
     db: Session = Depends(get_db),
-) -> patents.Patent:
+) -> patents.PatentResponse:
     patent = models.Patent(patent_number=patent_scheme.patent_number, type=patent_scheme.type, pub_date=patent_scheme.pub_date, 
                            app_date=patent_scheme.app_date, title=patent_scheme.title, abstract=patent_scheme.abstract, claims=patent_scheme.claims)
     db.add(patent)
@@ -75,18 +75,18 @@ def add_patent(
             patent.citations.append(models.PatentCitation(cited_patent=citation.cited_patent))
 
     if patent_scheme.ipc_codes:
-        for ipc in patent_scheme.ipc_codes:
-            patent.ipc_codes.append(models.IPC(ipc_code=ipc.ipc_code))
+        for ipc_code in patent_scheme.ipc_codes:
+            patent.ipc_codes.append(models.IPC(ipc_code=ipc_code))
 
-    if patent_scheme.cpc_codes:
-        for cpc in patent_scheme.cpc_codes:
-            patent.cpc_codes.append(models.CPC(cpc_code=cpc.cpc_code))
     patent.main_cpc = patent_scheme.main_cpc
+    if patent_scheme.cpc_codes:
+        for cpc_code in patent_scheme.cpc_codes:
+            patent.cpc_codes.append(models.CPC(cpc_code=cpc_code))
 
     db.flush()
     db.refresh(patent)
 
-    return patents.Patent.from_model(patent, 
+    return patents.PatentResponse.from_model(patent, 
                                      assignees_needed=True, 
                                      inventors_needed=True,
                                      descriptions_needed=True,

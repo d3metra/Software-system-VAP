@@ -61,7 +61,8 @@ class Patent(Base):
     @validates("main_cpc")
     def _add_main_cpc(self, _, main_cpc):
         sess = sessionmaker.object_session(self)
+
         if not sess.query(CPC).filter(CPC.cpc_code == main_cpc).one_or_none():
-            raise NotFound(f"CPC Code {main_cpc} not found")
-        
+            sess.add(CPC(cpc_code=main_cpc))
         return main_cpc
+       

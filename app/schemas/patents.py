@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from app import models
 from app.schemas import assignees, inventors, descriptions, patent_citations, ipc_schema, cpc_schema
 
-class Patent(BaseModel):
+class PatentBase(BaseModel):
     patent_number: str
     type: str
     pub_date: datetime
@@ -21,6 +21,12 @@ class Patent(BaseModel):
     inventors_list: List[inventors.Inventor]
     descriptions: List[descriptions.Description]
     citations: List[patent_citations.PatentCitation]
+
+class Patent(PatentBase):
+    ipc_codes: List[str]
+    cpc_codes: List[str]
+
+class PatentResponse(PatentBase):
     ipc_codes: List[ipc_schema.IPC]
     cpc_codes: List[cpc_schema.CPC]
 
