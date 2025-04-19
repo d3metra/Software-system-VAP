@@ -68,11 +68,13 @@ def add_patent(
         for description in patent_scheme.descriptions:
             patent.descriptions.append(models.Description(section_name=description.section_name,
                                                           section_content=description.section_content
-            ))
+                                                          ))
 
     if patent_scheme.citations:
         for citation in patent_scheme.citations:
-            patent.citations.append(models.PatentCitation(cited_patent=citation.cited_patent))
+            patent.citations.append(models.PatentCitation(cited_patent=citation.cited_patent, 
+                                                          date=citation.date
+                                                          ))
 
     if patent_scheme.ipc_codes:
         for ipc_code in patent_scheme.ipc_codes:
