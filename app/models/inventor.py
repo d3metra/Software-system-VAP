@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -15,3 +15,7 @@ class Inventor(Base):
     last_name: Mapped[str] = mapped_column(String(50), nullable=False)
     country: Mapped[str] = mapped_column(String(2), nullable=False)
     city: Mapped[str] = mapped_column(String(30), nullable=False)
+
+    __table_args__ = (
+        Index("ix_inventors_patent_number", "patent_number"),
+    )
