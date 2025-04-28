@@ -18,6 +18,7 @@ class PatentsFamily(Base):
     abstract: Mapped[str] = mapped_column(nullable=False)
     claims: Mapped[str] = mapped_column(nullable=False)
 
+    patents: Mapped[List["Patent"]] = relationship("Patent")
     assignees: Mapped[List["Assignee"]] = relationship("Assignee", secondary="assignees_groups", back_populates="patents_families")
     inventors: Mapped[List["Inventor"]] = relationship("Inventor")
     descriptions: Mapped[List["Description"]] = relationship("Description")
