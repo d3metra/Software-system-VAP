@@ -11,6 +11,7 @@ class PatentBase(BaseModel):
     patent_number: str
     type: str
     pub_date: datetime
+    app_number: str
     app_date: datetime
     main_cpc: str
     title: str
