@@ -13,4 +13,4 @@ class CPC(Base):
     parent_class: Mapped[str] = mapped_column(String(20), nullable=True)
     title: Mapped[str] = mapped_column(Text, nullable=True)
 
-    patents: Mapped[List["PatentsFamily"]] = relationship("PatentsFamily", secondary="cpc_classifications", back_populates="cpc_codes")
+    patents_families: Mapped[List["PatentsFamily"]] = relationship("PatentsFamily", secondary="cpc_classifications", back_populates="cpc_codes")

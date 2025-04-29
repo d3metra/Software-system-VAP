@@ -15,7 +15,7 @@ class Assignee(Base):
     country: Mapped[str] = mapped_column(String(2), nullable=False)
     city: Mapped[str] = mapped_column(String(30), nullable=False)
 
-    patents: Mapped[List["PatentsFamily"]] = relationship("PatentsFamily", secondary="assignees_groups", back_populates="assignees")
+    patents_families: Mapped[List["PatentsFamily"]] = relationship("PatentsFamily", secondary="assignees_groups", back_populates="assignees")
 
     __table_args__ = (
         Index("ix_assignee_name", "assignee_name"),
