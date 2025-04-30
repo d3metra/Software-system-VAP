@@ -20,8 +20,8 @@ class PatentsFamily(Base):
 
     patents: Mapped[List["Patent"]] = relationship("Patent")
     assignees: Mapped[List["Assignee"]] = relationship("Assignee", secondary="assignees_groups", back_populates="patents_families")
-    inventors: Mapped[List["Inventor"]] = relationship("Inventor")
-    descriptions: Mapped[List["Description"]] = relationship("Description")
+    inventors: Mapped[List["Inventor"]] = relationship("Inventor", cascade="all, delete-orphan")
+    descriptions: Mapped[List["Description"]] = relationship("Description", cascade="all, delete-orphan")
     ipc_codes: Mapped[List["IPC"]] = relationship("IPC", secondary="ipc_classifications", back_populates="patents_families")
     cpc_codes: Mapped[List["CPC"]] = relationship("CPC", secondary="cpc_classifications", back_populates="patents_families")
 
