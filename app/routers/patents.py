@@ -7,7 +7,60 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from datetime import datetime
+from datetime import datetime, timezone
+
+def update_collection_of_pf(pf: models.PatentsFamily, pd: patents.Patent):
+    for assignee in pd.assignees_list:
+        pf.assignees.append(models.Assignee(assignee_name=assignee.assignee_name,
+                                                       assignee_type=assignee.assignee_type,
+                                                       country=assignee.country,
+                                                       city=assignee.city))
+            
+    for inventor in pd.inventors_list:
+        pf.inventors.append(models.Inventor(first_name=inventor.first_name,
+                                                       last_name=inventor.last_name,
+                                                       country=inventor.country,
+                                                       city=inventor.city))
+
+    for description in pd.descriptions:
+        pf.descriptions.append(models.Description(section_name=description.section_name,
+                                                             section_content=description.section_content))
+
+    for ipc_code in pd.ipc_codes:
+        pf.ipc_codes.append(models.IPC(ipc_code=ipc_code))
+
+    for cpc_code in pd.cpc_codes:
+        pf.cpc_codes.append(models.CPC(cpc_code=cpc_code))
+
+def create_patents_family(db: Session, patent_data: patents.Patent) -> models.PatentsFamily:
+    patent_family = models.PatentsFamily(app_number=patent_data.app_number,
+                                         app_date=patent_data.app_date,
+                                         title=patent_data.title,
+                                         abstract=patent_data.abstract,
+                                         claims=patent_data.claims)
+    db.add(patent_family)
+    patent_family.main_cpc = patent_data.main_cpc
+    
+    update_collection_of_pf(patent_family, patent_data)
+
+    return patent_family
+
+def update_patents_family(patent_family: models.PatentsFamily, patent_data: patents.Patent) -> models.PatentsFamily:
+    patent_family.assignees = []
+    patent_family.inventors = []
+    patent_family.descriptions = []
+    patent_family.ipc_codes = []
+    patent_family.cpc_codes = []
+
+    patent_family.main_cpc = patent_data.main_cpc
+    patent_family.title = patent_data.title
+    patent_family.abstract = patent_data.abstract
+    patent_family.claims = patent_data.claims
+
+    update_collection_of_pf(patent_family, patent_data)
+
+    return patent_family
+
 
 patents_router = APIRouter()
 
@@ -30,7 +83,13 @@ def get_patent(
     
     if patent_db is None:
         raise NotFound(f"Patent {patent_number} not found.")
-    return patents.PatentResponse.from_model(patent_db, 
+    
+    patent_family_db = db.scalars(
+        select(models.PatentsFamily).
+        where(models.PatentsFamily.app_number == patent_db.patents_family)
+    ).one()
+
+    return patents.PatentResponse.from_model(patent_db, patent_family_db,
                                      assignees_needed=assignees_needed, 
                                      inventors_needed=inventors_needed,
                                      descriptions_needed=description_needed,
@@ -49,62 +108,30 @@ def add_patent(
 
     for citation in patent_scheme.citations:
         patent.citations.append(models.PatentCitation(cited_patent=citation.cited_patent, 
-                                                        date=citation.date
-                                                        ))
+                                                      date=citation.date))
 
     patent_family = db.scalars(
         select(models.PatentsFamily).
         where(models.PatentsFamily.app_number == patent_scheme.app_number)
         ).one_or_none()
     
-    # Создаём соответствующее патентное семейство в случае его отсутствия
     if not patent_family:
-        patent_family = models.PatentsFamily(app_number=patent_scheme.app_number,
-                                             app_date=patent_scheme.app_date,
-                                             main_cpc=patent_scheme.main_cpc,
-                                             title=patent_scheme.title,
-                                             abstract=patent_scheme.abstract,
-                                             claims=patent_scheme.claims)
-        db.add(patent_family)
-
+    # Создаём соответствующее патентное семейство в случае его отсутствия
+        patent_family = create_patents_family(db, patent_scheme)
+        
+    else:
     # Находим самый "свежий" патентный документ
-    latest_publication_date = patent_scheme.pub_date
-    for patent_pub in patent_family.patents:
-        if patent_pub.pub_date > latest_publication_date:
-            latest_publication_date = patent_pub.pub_date
+        latest_publication_date = patent_scheme.pub_date.replace(tzinfo=None)
+        for patent_pub in patent_family.patents:
+            print(patent_pub.pub_date, latest_publication_date)
+            if patent_pub.pub_date > latest_publication_date:
+                latest_publication_date = patent_pub.pub_date
+    # Обновляем данные Патентного Семейства, если добавляемый патентный документ самый "свежий"
+        if patent_scheme.pub_date.replace(tzinfo=None) == latest_publication_date:
+            patent_family = update_patents_family(patent_family, patent_scheme)
     
     # Добавляем текущий патентный документ к семейству
     patent_family.patents.append(patent)
-
-    # Обновляем данные Патентного Семейства, если добавляемый патентный документ первый или самый "свежий"
-    if patent_scheme.pub_date == latest_publication_date:
-
-        patent_family.main_cpc = patent_scheme.main_cpc
-        patent_family.title = patent_scheme.title
-        patent_family.abstract = patent_scheme.abstract
-        patent_family.claims = patent_scheme.claims
-
-        for assignee in patent_scheme.assignees_list:
-            patent_family.assignees.append(models.Assignee(assignee_name=assignee.assignee_name,
-                                                           assignee_type=assignee.assignee_type,
-                                                           country=assignee.country,
-                                                           city=assignee.city))
-            
-        for inventor in patent_scheme.inventors_list:
-            patent_family.inventors.append(models.Inventor(first_name=inventor.first_name,
-                                                           last_name=inventor.last_name,
-                                                           country=inventor.country,
-                                                           city=inventor.city))
-
-        for description in patent_scheme.descriptions:
-            patent_family.descriptions.append(models.Description(section_name=description.section_name,
-                                                                 section_content=description.section_content))
-
-        for ipc_code in patent_scheme.ipc_codes:
-            patent_family.ipc_codes.append(models.IPC(ipc_code=ipc_code))
-
-        for cpc_code in patent_scheme.cpc_codes:
-            patent_family.cpc_codes.append(models.CPC(cpc_code=cpc_code))
 
     db.flush()
     db.refresh(patent)
