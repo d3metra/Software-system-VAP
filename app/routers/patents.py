@@ -1,5 +1,5 @@
 from app import models
-from app.schemas import patents, assignees
+from app.schemas import patents
 from app.dependencies.db import get_db
 from app.errors import responses, NotFound
 

@@ -12,3 +12,4 @@ async def http_execpion_handler(request: Request, exc: errors.HTTPException) -> 
     )
 
 app.include_router(routers.patents_router, prefix="/patents", tags=["Patents"])
+app.include_router(routers.patents_families_router, prefix="/families", tags=["Patents Families"])
