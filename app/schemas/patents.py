@@ -5,31 +5,15 @@ from typing import Any, List
 from pydantic import BaseModel
 
 from app import models
-from app.schemas import assignees, inventors, descriptions, patent_citations, ipc_schema, cpc_schema
+from app.schemas import assignees, inventors, descriptions,  patent_citations, ipc_schema, cpc_schema
+from app.schemas.patents_families import PatentsFamily
 
-class PatentBase(BaseModel):
+class Patent(PatentsFamily):
     patent_number: str
     type: str
     pub_date: datetime
-    app_number: str
-    app_date: datetime
-    main_cpc: str
-    title: str
-    abstract: str
-    claims: str
-
-    assignees_list: List[assignees.Assignee]
-    inventors_list: List[inventors.Inventor]
-    descriptions: List[descriptions.Description]
+    
     citations: List[patent_citations.PatentCitation]
-
-class Patent(PatentBase):
-    ipc_codes: List[str]
-    cpc_codes: List[str]
-
-class PatentResponse(PatentBase):
-    ipc_codes: List[ipc_schema.IPC]
-    cpc_codes: List[cpc_schema.CPC]
 
     @classmethod
     def from_model(cls: type["Patent"], mP: models.Patent, mF: models.PatentsFamily, 
@@ -56,3 +40,7 @@ class PatentResponse(PatentBase):
             ipc_codes=[ipc_schema.IPC.from_model(ipc_code) for ipc_code in mF.ipc_codes] if ipc_needed else [],
             cpc_codes=[cpc_schema.CPC.from_model(cpc_code) for cpc_code in mF.cpc_codes] if cpc_needed else []
         )
+
+class PatentRequest(Patent):
+    ipc_codes: List[str]
+    cpc_codes: List[str]
