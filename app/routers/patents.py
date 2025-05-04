@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from datetime import datetime, timezone
 
-def update_collection_of_pf(pf: models.PatentsFamily, pd: patents.Patent):
+def update_collection_of_pf(pf: models.PatentsFamily, pd: patents.PatentRequest):
     for assignee in pd.assignees_list:
         pf.assignees.append(models.Assignee(assignee_name=assignee.assignee_name,
                                                        assignee_type=assignee.assignee_type,
@@ -32,7 +32,7 @@ def update_collection_of_pf(pf: models.PatentsFamily, pd: patents.Patent):
     for cpc_code in pd.cpc_codes:
         pf.cpc_codes.append(models.CPC(cpc_code=cpc_code))
 
-def create_patents_family(db: Session, patent_data: patents.Patent) -> models.PatentsFamily:
+def create_patents_family(db: Session, patent_data: patents.PatentRequest) -> models.PatentsFamily:
     patent_family = models.PatentsFamily(app_number=patent_data.app_number,
                                          app_date=patent_data.app_date,
                                          title=patent_data.title,
@@ -45,7 +45,7 @@ def create_patents_family(db: Session, patent_data: patents.Patent) -> models.Pa
 
     return patent_family
 
-def update_patents_family(patent_family: models.PatentsFamily, patent_data: patents.Patent) -> models.PatentsFamily:
+def update_patents_family(patent_family: models.PatentsFamily, patent_data: patents.PatentRequest) -> models.PatentsFamily:
     patent_family.assignees = []
     patent_family.inventors = []
     patent_family.descriptions = []
@@ -75,7 +75,7 @@ def get_patent(
     citations_needed: bool = False,
     ipc_needed: bool = False,
     cpc_needed: bool = False
-) -> patents.PatentResponse:
+) -> patents.Patent:
     patent_db = db.scalars(
         select(models.Patent).
         where(models.Patent.patent_number == patent_number)
@@ -89,7 +89,7 @@ def get_patent(
         where(models.PatentsFamily.app_number == patent_db.patents_family)
     ).one()
 
-    return patents.PatentResponse.from_model(patent_db, patent_family_db,
+    return patents.Patent.from_model(patent_db, patent_family_db,
                                      assignees_needed=assignees_needed, 
                                      inventors_needed=inventors_needed,
                                      descriptions_needed=description_needed,
@@ -100,9 +100,9 @@ def get_patent(
 @patents_router.post("/")
 def add_patent(
     *,
-    patent_scheme: patents.Patent,
+    patent_scheme: patents.PatentRequest,
     db: Session = Depends(get_db),
-) -> patents.PatentResponse:
+) -> patents.Patent:
     patent = models.Patent(patent_number=patent_scheme.patent_number, type=patent_scheme.type, pub_date=patent_scheme.pub_date)
     db.add(patent)
 
@@ -137,7 +137,7 @@ def add_patent(
     db.refresh(patent)
     db.refresh(patent_family)
 
-    return patents.PatentResponse.from_model(patent, patent_family,
+    return patents.Patent.from_model(patent, patent_family,
                                      assignees_needed=True, 
                                      inventors_needed=True,
                                      descriptions_needed=True,
