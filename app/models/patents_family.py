@@ -5,6 +5,7 @@ from typing import List
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, sessionmaker, mapped_column, relationship, validates
 
+from app.errors import NotFound
 from . import *
 
 @dataclass
@@ -54,12 +55,4 @@ class PatentsFamily(Base):
             return persistent_cpc_code
         else:
             return cpc
-
-    @validates("main_cpc")
-    def _add_main_cpc(self, _, main_cpc):
-        sess = sessionmaker.object_session(self)
-
-        if not sess.query(CPC).filter(CPC.cpc_code == main_cpc).one_or_none():
-            sess.add(CPC(cpc_code=main_cpc))
-        return main_cpc
        

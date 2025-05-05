@@ -38,8 +38,11 @@ def create_patents_family(db: Session, patent_data: patents.PatentRequest) -> mo
                                          title=patent_data.title,
                                          abstract=patent_data.abstract,
                                          claims=patent_data.claims)
-    db.add(patent_family)
+    if patent_data.main_cpc not in patent_data.cpc_codes:
+        raise NotFound(f"CPC code {patent_data.main_cpc} not found.")
     patent_family.main_cpc = patent_data.main_cpc
+
+    db.add(patent_family)
     
     update_collection_of_pf(patent_family, patent_data)
 
@@ -52,10 +55,12 @@ def update_patents_family(patent_family: models.PatentsFamily, patent_data: pate
     patent_family.ipc_codes = []
     patent_family.cpc_codes = []
 
-    patent_family.main_cpc = patent_data.main_cpc
     patent_family.title = patent_data.title
     patent_family.abstract = patent_data.abstract
     patent_family.claims = patent_data.claims
+    if patent_data.main_cpc not in patent_data.cpc_codes:
+        raise NotFound(f"CPC code {patent_data.main_cpc} not found.")
+    patent_family.main_cpc = patent_data.main_cpc
 
     update_collection_of_pf(patent_family, patent_data)
 
