@@ -10,3 +10,4 @@ from .cpc import CPC
 from .ipc_classification import IPCClassification
 from .cpc_classification import CPCClassification
 from .patent import Patent
+from .patents_family import PatentsFamily
